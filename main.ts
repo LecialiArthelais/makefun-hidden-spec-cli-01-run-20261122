@@ -1,8 +1,7 @@
-// main.ts is mend, the CLI SPEC.md specifies, and this is the kit's starting point for it (MIT). It does sections 1 to 4, 9 and 10 of SPEC.md: the command line, the output and
-// exit codes, safe paths, format detection, JSON edits and the all-or-nothing write. The other three formats are
-// detected and then read as holding no edit, so they answer `error: parse 1`: reading unified diffs (section 6),
-// SEARCH/REPLACE blocks (section 7) and V4A patches (section 8), and matching lines at three tiers (section 5), are
-// yours to write. Node 22, the standard library alone; run it as `node main.ts [options] [PATCH]`.
+// main.ts is mend, the CLI SPEC.md specifies (MIT). It implements all of SPEC.md: the command line, the output and
+// exit codes, safe paths, format detection, three-tier line matching (section 5), unified diffs (section 6),
+// SEARCH/REPLACE blocks (section 7), V4A patches (section 8), JSON edits (section 9) and the all-or-nothing write
+// (section 10). Node 22, the standard library alone; run it as `node main.ts [options] [PATCH]`.
 //
 // In a trial the grader runs `node /bot/main.ts` with MAKEFUN_ENV_URL set, and then this file hands over to runner.ts
 // (the last lines below): keep that hand-over and runner.ts as they are, and write the CLI.
@@ -332,7 +331,7 @@ const DIFF_GIT = /^diff --git a\/(\S+) b\/(\S+)$/;
 function applyHunkTo(file: FileText, hunk: Hunk, d: number, strict: boolean, path: string): FileText {
   const spec = specOf(hunk.ops);
   if (spec.o.length === 0) {
-    const at = Math.min(hunk.a + d, file.lines.length);
+    const at = Math.max(0, Math.min(hunk.a + d, file.lines.length));
     const lines = [...file.lines.slice(0, at), ...spec.n, ...file.lines.slice(at)];
     return { br: file.br, lines, finalBr: at === file.lines.length ? !hunkNoNL(hunk, false) : file.finalBr };
   }
